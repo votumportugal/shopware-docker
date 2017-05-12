@@ -1,0 +1,45 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+
+version: '2'
+
+services:
+  sw-mailhog:
+    image: phpdockerio/mailhog:latest
+    container_name: sw-mailhog
+    ports:
+      - "8082:8025"
+
+  sw-mysql:
+    image: mysql:5.6
+    container_name: sw-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=shopware5
+      - MYSQL_USER=shopware
+      - MYSQL_PASSWORD=shopware
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysqldata:/var/lib/mysql
+      - ../log:/var/log
+
+  sw-webserver:
+    build:
+      context: ./phpdockerio-apache
+    container_name: sw-webserver
+    volumes:
+      - ../htdocs:/var/www/htdocs
+      - ../log:/var/log/apache2
+      - ./phpdockerio-apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./phpdockerio-apache/php-ini-overrides.ini:/etc/php/7.0/apache2/conf.d/99-overrides.ini
+      - ./phpdockerio-apache/php-ini-overrides.ini:/etc/php/7.0/cli/conf.d/99-overrides.ini
+      - ./phpdockerio-apache/xdebug-ini-overrides.ini:/etc/php/7.0/apache2/conf.d/20-xdebug.ini
+      - ./phpdockerio-apache/xdebug-ini-overrides.ini:/etc/php/7.0/cli/conf.d/20-xdebug.ini
+      - ../composer/cache:/var/www/.composer/cache
+    ports:
+     - "8085:80"
+    links:
+      - sw-mailhog
+      - sw-mysql
