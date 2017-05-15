@@ -4,6 +4,7 @@ FROM phpdockerio/php7-cli:latest
 RUN apt-get update \
     && apt-get -y --no-install-recommends install \
      apache2 \
+     ant \
 	 wget \
 	 unzip \
 	 mysql-client \
